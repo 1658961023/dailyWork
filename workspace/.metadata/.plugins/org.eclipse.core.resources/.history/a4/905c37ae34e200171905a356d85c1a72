@@ -1,0 +1,8 @@
+package ´ó×÷Òµ;
+
+public class Floor {
+private SpecialQueen[] customer;
+public Floor(){
+	this.customer=new SpecialQueen[100];
+}
+}

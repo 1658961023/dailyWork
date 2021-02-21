@@ -1,0 +1,177 @@
+package ´ó×÷Òµ;
+
+import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+public class Control {
+	private Lift lift;
+	private Floor[] floor;
+	private ArrayList<Customer> passages;
+
+	public Control(ArrayList<Customer> passages) {
+		this.lift = new Lift();
+		this.floor = new Floor[101];
+		this.passages = passages;
+	}
+
+	public void run() {
+		ArrayList<Customer> sortList = sortForTime(this.passages);
+		ArrayList<Customer> waitList = new ArrayList<Customer>();
+		lift.setFloor(1);
+		int Runtime = 0;
+		int Roundtime = 0;
+		while (lift.getCustomers() != null || waitList != null || sortList != null) {
+			if (lift.getCustomers().size() == 0) {
+				if (sortList.get(0).getComingTime() == Runtime) {
+					waitList.add(sortList.get(0));
+					floor[sortList.get(0).getSF()].getAllList().add(sortList.get(0));
+					sortList.remove(0);
+				}
+				if (waitList.size() != 0 || lift.getCustomers().size() != 0) {
+					if (lift.getCustomers().size() == 0) {
+						lift.setUp_down(waitList.get(0).getSF() > lift.getFloor());
+					}
+					if (waitList.get(0).getSF() == lift.getFloor()) {
+						lift.setUp_down(waitList.get(0).getSF() < waitList.get(0).getDF());
+					}
+				}
+			} else {
+				lift.setUp_down(lift.getCustomers().get(0).getSF() < lift.getCustomers().get(0)
+						.getDF());
+			}
+			sortCustomerOnfloor();
+			if (lift.isArriveFloor()) {
+				if (lift.getCustomers().size() != 0) {
+					for (int i = 0; i < lift.getCustomers().size(); i++) {
+						if (lift.getCustomers().get(i).getDF() == lift.getFloor()) {
+							Runtime++;
+							lift.getCustomers().get(i).setLeaveTime(Runtime);
+							lift.getCustomers().remove(lift.getCustomers().get(i));
+						}
+					}
+				}
+				if (lift.getCustomers().size() < lift.getMax()) {
+					if (lift.isUp_down()) {
+						if (floor[lift.getFloor()].getQueens().getOld_up().size() != 0) {
+							for (int i = 0; i < floor[lift.getFloor()].getQueens().getOld_up().size(); i++) {
+								if (floor[lift.getFloor()].getQueens().getOld_up().get(i).getDF() == lift.getFloor()) {
+									Runtime++;
+									floor[lift.getFloor()].getQueens()
+											.old_up_in(floor[lift.getFloor()].getQueens().getOld_down().get(i));
+									lift.getCustomers().add(floor[lift.getFloor()].getQueens().getOld_up().get(i));
+								}
+							}
+						}
+						if (floor[lift.getFloor()].getQueens().getOld_down().size() != 0) {
+							for (int i = 0; i < floor[lift.getFloor()].getQueens().getOld_down().size(); i++) {
+								if (floor[lift.getFloor()].getQueens().getOld_down().get(i).getDF() == lift
+										.getFloor()) {
+									Runtime++;
+									floor[lift.getFloor()].getQueens()
+											.old_down_in(floor[lift.getFloor()].getQueens().getOld_down().get(i));
+									System.out.println(floor[lift.getFloor()].getQueens().getOld_down().get(i));
+									lift.getCustomers().add(floor[lift.getFloor()].getQueens().getOld_down().get(i));
+								}
+							}
+						}
+						if (floor[lift.getFloor()].getQueens().getYoung_up().size() != 0) {
+							for (int i = 0; i < floor[lift.getFloor()].getQueens().getYoung_up().size(); i++) {
+								if (floor[lift.getFloor()].getQueens().getYoung_up().get(i).getDF() == lift
+										.getFloor()) {
+									Runtime++;
+									floor[lift.getFloor()].getQueens()
+											.young_up_in(floor[lift.getFloor()].getQueens().getOld_down().get(i));
+									lift.getCustomers().add(floor[lift.getFloor()].getQueens().getYoung_up().get(i));
+								}
+							}
+						}
+						if (floor[lift.getFloor()].getQueens().getYoung_down().size() != 0) {
+							for (int i = 0; i < floor[lift.getFloor()].getQueens().getYoung_down().size(); i++) {
+								if (floor[lift.getFloor()].getQueens().getYoung_down().get(i).getDF() == lift
+										.getFloor()) {
+									Runtime++;
+									floor[lift.getFloor()].getQueens()
+											.young_down_in(floor[lift.getFloor()].getQueens().getOld_down().get(i));
+									lift.getCustomers().add(floor[lift.getFloor()].getQueens().getYoung_down().get(i));
+								}
+							}
+						}
+					}
+				}
+			}
+			Roundtime++;
+			if (Roundtime == 10) {
+				if (lift.isUp_down()) {
+					lift.Lift_up();
+				} else {
+					lift.Lift_down();
+				}
+				Roundtime = 0;
+			}
+		}
+		Runtime++;
+	}
+
+	public void sortCustomerOnfloor() {
+		for (int i = 1; i < 101; i++) {
+			if (floor[i].getAllList().size() != 0) {
+				for (int j = 0; j < floor[i].getAllList().size(); j++) {
+					if (floor[i].getAllList().get(j).getAge() > 60
+							&& (floor[i].getAllList().get(j).getSF() < floor[i].getAllList().get(j).getDF())) {
+						floor[i].getQueens().old_up_add(floor[i].getAllList().get(j));
+						floor[i].getAllList().remove(j);
+					}
+					if (floor[i].getAllList().get(j).getAge() > 60
+							&& (floor[i].getAllList().get(j).getSF() > floor[i].getAllList().get(j).getDF())) {
+						floor[i].getQueens().old_down_add(floor[i].getAllList().get(j));
+						floor[i].getAllList().remove(j);
+					}
+					if (floor[i].getAllList().get(j).getAge() <= 60
+							&& (floor[i].getAllList().get(j).getSF() < floor[i].getAllList().get(j).getDF())) {
+						floor[i].getQueens().young_up_add(floor[i].getAllList().get(j));
+						floor[i].getAllList().remove(j);
+					}
+					if (floor[i].getAllList().get(j).getAge() <= 60
+							&& (floor[i].getAllList().get(j).getSF() > floor[i].getAllList().get(j).getDF())) {
+						floor[i].getQueens().young_down_add(floor[i].getAllList().get(j));
+						floor[i].getAllList().remove(j);
+					}
+				}
+			}
+		}
+	}
+
+	public ArrayList<Customer> sortForTime(ArrayList<Customer> customer) {
+		ArrayList<Customer> newlist = new ArrayList<Customer>();
+		int sum = customer.size();
+		for (int i = 0; i < sum; i++) {
+			Customer min = customer.get(0);
+			int minindex = 0;
+			for (int j = 0; j < customer.size(); j++) {
+				if (customer.get(j).getComingTime() < min.getComingTime()) {
+					min = customer.get(j);
+					minindex = j;
+				}
+			}
+			newlist.add(min);
+			customer.remove(minindex);
+		}
+		return newlist;
+	}
+
+	public static void main(String[] args) throws FileNotFoundException {
+		CustomerInfo info = new CustomerInfo();
+		info.writeInfo();
+		ArrayList<Customer> passages = new ArrayList<Customer>();
+		passages = info.readInfo();
+		for (int i = 0; i < passages.size(); i++) {
+			System.out.println(
+					passages.get(i).getID() + "\t" + passages.get(i).getAge() + "\t" + passages.get(i).getComingTime()
+							+ "\t\t" + passages.get(i).getDF() + "\t" + passages.get(i).getSF() + "\t");
+		}
+	}
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 2 elements to &apos;Java网络编程/src/javanet.c06&apos;&#x0D;&#x0A;- Original project: &apos;Java网络编程&apos;&#x0D;&#x0A;- Destination element: &apos;Java网络编程/src/javanet.c06&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     key_rsa.txt&#x0D;&#x0A;     key_rsa_pub.txt" description="Copy files" destination="/src&lt;javanet.c06" element1="src/javanet/e09/key_rsa.txt" element2="src/javanet/e09/key_rsa_pub.txt" files="2" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1556171249008" units="0" version="1.0"/>
+</session>

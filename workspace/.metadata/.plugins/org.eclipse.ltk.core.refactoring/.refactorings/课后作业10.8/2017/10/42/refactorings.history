@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;tax1&apos; in &apos;TestTax.main(...)&apos; to &apos;newtax&apos;&#x0D;&#x0A;- Original project: &apos;课后作业10.8&apos;&#x0D;&#x0A;- Original element: &apos;TestTax.main(String[]).tax1&apos;&#x0D;&#x0A;- Renamed element: &apos;tax1&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;tax1&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src&lt;{TestTax.java[TestTax~main~\[QString;@tax1!567!575!571!574!QTax;!0!false" name="newtax" references="true" stamp="1508070571067" version="1.0"/>
+</session>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;实验八.CalLetters&apos; to &apos;MainTest&apos;&#x0D;&#x0A;- Original project: &apos;实验八&apos;&#x0D;&#x0A;- Original element: &apos;实验八.CalLetters&apos;&#x0D;&#x0A;- Renamed element: &apos;实验八.MainTest&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;CalLetters&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;实验八{CalLetters.java[CalLetters" matchStrategy="1" name="MainTest" qualified="false" references="true" similarDeclarations="false" stamp="1512463553354" textual="false" version="1.0"/>
+</session>

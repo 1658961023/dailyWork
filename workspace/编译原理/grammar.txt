@@ -1,0 +1,1 @@
+S:aA,bS:bB,S:a,A:aAA,A:aS,aA:bB,B:bB,B:b,B:b

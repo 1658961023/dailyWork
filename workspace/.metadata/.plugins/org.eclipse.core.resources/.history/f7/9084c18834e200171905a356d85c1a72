@@ -1,0 +1,14 @@
+package ´ó×÷Òµ;
+
+public class Floor {
+private SpecialQueen queens;
+public Floor(){
+	this.queens=new SpecialQueen();
+}
+public SpecialQueen getQueens() {
+	return queens;
+}
+public void setQueens(SpecialQueen queens) {
+	this.queens = queens;
+}
+}

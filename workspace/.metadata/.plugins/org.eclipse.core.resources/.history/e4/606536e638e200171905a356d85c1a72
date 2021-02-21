@@ -1,0 +1,48 @@
+package ´ó×÷Òµ;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
+public class Close_Open extends Thread{
+		Rectangle r1;
+		Rectangle r2;
+		public void run(){
+			try{
+				Thread.sleep(10000);
+			}catch (Exception e){
+				
+			}
+			Timeline  t = new Timeline(new KeyFrame(Duration.millis(100),e ->Move1(r1,r2)));
+			t.setCycleCount(10);
+			t.play();
+			
+		}
+		private void Open(Rectangle r1, Rectangle r2) {
+			r1.setX(r1.getX() + 5);
+			r2.setWidth(r2.getWidth() - 5);
+			r1.setWidth(r1.getWidth() - 5);
+			
+		}
+	}
+		public Guan(Rectangle r1, Rectangle r2) {
+			this.r1 = r1;
+			this.r2 = r2;
+		}
+			public void run(){
+				try{
+					Thread.sleep(11000);
+				}catch (Exception e){
+					
+				}
+				Timeline  t = new Timeline(new KeyFrame(Duration.millis(100),e ->Move1(r1,r2)));
+				t.setCycleCount(10);
+				t.play();
+				
+			}
+			private void Close(Rectangle r1, Rectangle r2) {
+				r1.setX(r1.getX() - 5);
+				r2.setWidth(r2.getWidth() + 5);
+				r1.setWidth(r1.getWidth() + 5);
+				
+			}
+	}

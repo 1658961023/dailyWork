@@ -1,0 +1,5 @@
+package µÚ¶şÌâ;
+
+public interface Distance{
+public double getDistance();
+}

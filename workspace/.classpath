@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="国庆作业 (10)/src"/>
+	<classpathentry kind="src" path="国庆作业 (11)/src"/>
+	<classpathentry kind="src" path="国庆作业 (12)/src"/>
+	<classpathentry kind="src" path="国庆作业 (13)/src"/>
+	<classpathentry kind="src" path="国庆作业 (14)/src"/>
+	<classpathentry kind="src" path="国庆作业 (15)/src"/>
+	<classpathentry kind="src" path="国庆作业 (16)/src"/>
+	<classpathentry kind="src" path="国庆作业 (17)/src"/>
+	<classpathentry kind="src" path="国庆作业 (18)/src"/>
+	<classpathentry kind="src" path="国庆作业 (19)/src"/>
+	<classpathentry kind="src" path="国庆作业 (2)/src"/>
+	<classpathentry kind="src" path="国庆作业 (20)/src"/>
+	<classpathentry kind="src" path="国庆作业 (21)/src"/>
+	<classpathentry kind="src" path="国庆作业 (22)/src"/>
+	<classpathentry kind="src" path="国庆作业 (23)/src"/>
+	<classpathentry kind="src" path="国庆作业 (24)/src"/>
+	<classpathentry kind="src" path="国庆作业 (25)/src"/>
+	<classpathentry kind="src" path="国庆作业 (26)/src"/>
+	<classpathentry kind="src" path="国庆作业 (27)/src"/>
+	<classpathentry kind="src" path="国庆作业 (28)/src"/>
+	<classpathentry kind="src" path="国庆作业 (29)/src"/>
+	<classpathentry kind="src" path="国庆作业 (3)/src"/>
+	<classpathentry kind="src" path="国庆作业 (30)/src"/>
+	<classpathentry kind="src" path="国庆作业 (31)/src"/>
+	<classpathentry kind="src" path="国庆作业 (32)/src"/>
+	<classpathentry kind="src" path="国庆作业 (33)/src"/>
+	<classpathentry kind="src" path="国庆作业 (34)/src"/>
+	<classpathentry kind="src" path="国庆作业 (35)/src"/>
+	<classpathentry kind="src" path="国庆作业 (36)/src"/>
+	<classpathentry kind="src" path="国庆作业 (37)/src"/>
+	<classpathentry kind="src" path="国庆作业 (38)/src"/>
+	<classpathentry kind="src" path="国庆作业 (39)/src"/>
+	<classpathentry kind="src" path="国庆作业 (4)/src"/>
+	<classpathentry kind="src" path="国庆作业 (40)/src"/>
+	<classpathentry kind="src" path="国庆作业 (41)/src"/>
+	<classpathentry kind="src" path="国庆作业 (42)/src"/>
+	<classpathentry kind="src" path="国庆作业 (43)/src"/>
+	<classpathentry kind="src" path="国庆作业 (44)/src"/>
+	<classpathentry kind="src" path="国庆作业 (45)/src"/>
+	<classpathentry kind="src" path="国庆作业 (46)/src"/>
+	<classpathentry kind="src" path="国庆作业 (47)/src"/>
+	<classpathentry kind="src" path="国庆作业 (48)/src"/>
+	<classpathentry kind="src" path="国庆作业 (49)/src"/>
+	<classpathentry kind="src" path="国庆作业 (5)/src"/>
+	<classpathentry kind="src" path="国庆作业 (50)/src"/>
+	<classpathentry kind="src" path="国庆作业 (6)/src"/>
+	<classpathentry kind="src" path="国庆作业 (7)/src"/>
+	<classpathentry kind="src" path="国庆作业 (8)/src"/>
+	<classpathentry kind="src" path="国庆作业 (9)/src"/>
+	<classpathentry kind="src" path="国庆作业(1)/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="国庆作业 (10)/bin"/>
+</classpath>

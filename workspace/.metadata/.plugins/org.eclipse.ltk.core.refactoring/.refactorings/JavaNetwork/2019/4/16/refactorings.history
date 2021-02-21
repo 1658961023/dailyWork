@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;javanet.l05.StationClient&apos; to &apos;StationServer&apos;&#x0D;&#x0A;- Original project: &apos;JavaNetwork&apos;&#x0D;&#x0A;- Original element: &apos;javanet.l05.StationClient&apos;&#x0D;&#x0A;- Renamed element: &apos;javanet.l05.StationServer&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;StationClient&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;javanet.l05{StationClient.java[StationClient" matchStrategy="1" name="StationServer" qualified="false" references="true" similarDeclarations="false" stamp="1555653692531" textual="false" version="1.0"/>
+</session>

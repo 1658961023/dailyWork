@@ -1,0 +1,151 @@
+package ´ó×÷Òµ;
+
+import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+public class Control {
+	private Lift lift;
+	private Floor[] floor;
+	private ArrayList<Customer> passages;
+
+	public Control(ArrayList<Customer> passages) {
+		this.lift = new Lift();
+		this.floor = new Floor[101];
+		this.passages = passages;
+	}
+
+	public void run() {
+		ArrayList<Customer> sortList = sortForTime(this.passages);
+		ArrayList<Customer> waitList = new ArrayList<Customer>();
+		ArrayList<Customer> ListOnFloor = new ArrayList<Customer>();
+		lift.setFloor(1);
+		int Runtime = 0;
+		int Roundtime = 0;
+		while (lift.getCustomers() != null || waitList != null || sortList != null) {
+			if (lift.getCustomers().size() == 0) {
+				if (sortList.get(0).getComingTime() == Runtime) {
+					waitList.add(sortList.get(0));
+					ListOnFloor.add(sortList.get(0));
+					sortList.remove(0);
+				}
+				if (ListOnFloor.size() != 0 || lift.getCustomers().size() != 0) {
+					if (lift.getCustomers().size() == 0) {
+						lift.setUp_down(ListOnFloor.get(0).getSF() > lift.getFloor());
+					}
+					if (waitList.get(0).getSF() == lift.getFloor()) {
+						lift.setUp_down(ListOnFloor.get(0).getSF() < waitList.get(0).getDF());
+					}
+				}
+			} else {
+				lift.setUp_down(lift.getCustomers().get(0).getSF() < lift.getCustomers().get(0).getDF());
+			}
+			if (waitList.size() != 0) {
+				if (waitList.get(0).getAge() > 60) {
+					if (waitList.get(0).getSF() < waitList.get(0).getDF()) {
+						floor[waitList.get(0).getSF()].getQueens().old_up_add(waitList.get(0));
+					}
+					if (waitList.get(0).getSF() > waitList.get(0).getDF()) {
+						floor[waitList.get(0).getSF()].getQueens().old_down_add(waitList.get(0));
+					}
+				} else {
+					if (waitList.get(0).getSF() < waitList.get(0).getDF()) {
+						floor[waitList.get(0).getSF()].getQueens().young_up_add(waitList.get(0));
+					}
+					if (waitList.get(0).getSF() > waitList.get(0).getDF()) {
+						floor[waitList.get(0).getSF()].getQueens().young_down_add(waitList.get(0));
+					}
+				}
+				waitList.remove(0);
+			}
+		}
+		if (lift.isArriveFloor()) {
+			if (lift.getCustomers().size() != 0) {
+				for (int i = 0; i < lift.getCustomers().size(); i++) {
+					if (lift.getCustomers().get(i).getDF() == lift.getFloor()) {
+						Runtime++;
+						lift.getCustomers().get(i).setLeaveTime(Runtime);
+						sortList.remove(lift.getCustomers().get(i));
+						lift.getCustomers().remove(lift.getCustomers().get(i));
+					}
+				}
+			}
+			if (lift.getCustomers().size() < lift.getMax()) {
+				if (lift.isUp_down()) {
+					if (floor[lift.getFloor()].getQueens().getOld_up().size() != 0) {
+						for (int i = 0; i < floor[lift.getFloor()].getQueens().getOld_up().size(); i++) {
+							if (floor[lift.getFloor()].getQueens().getOld_up().get(i).getDF() == lift.getFloor()) {
+								Runtime++;
+								floor[lift.getFloor()].getQueens()
+										.old_up_in(floor[lift.getFloor()].getQueens().getOld_down().get(i));
+								lift.getCustomers().add(floor[lift.getFloor()].getQueens().getOld_up().get(i));
+							}
+						}
+					}
+					if (floor[lift.getFloor()].getQueens().getOld_down().size() != 0) {
+						for (int i = 0; i < floor[lift.getFloor()].getQueens().getOld_down().size(); i++) {
+							if (floor[lift.getFloor()].getQueens().getOld_down().get(i).getDF() == lift.getFloor()) {
+								Runtime++;
+								floor[lift.getFloor()].getQueens()
+										.old_down_in(floor[lift.getFloor()].getQueens().getOld_down().get(i));
+								System.out.println(floor[lift.getFloor()].getQueens().getOld_down().get(i));
+								lift.getCustomers().add(floor[lift.getFloor()].getQueens().getOld_down().get(i));
+							}
+						}
+					}
+					if (floor[lift.getFloor()].getQueens().getYoung_up().size() != 0) {
+						for (int i = 0; i < floor[lift.getFloor()].getQueens().getYoung_up().size(); i++) {
+							if (floor[lift.getFloor()].getQueens().getYoung_up().get(i).getDF() == lift.getFloor()) {
+								Runtime++;
+								floor[lift.getFloor()].getQueens()
+										.young_up_in(floor[lift.getFloor()].getQueens().getOld_down().get(i));
+								lift.getCustomers().add(floor[lift.getFloor()].getQueens().getYoung_up().get(i));
+							}
+						}
+					}
+					if (floor[lift.getFloor()].getQueens().getYoung_down().size() != 0) {
+						for (int i = 0; i < floor[lift.getFloor()].getQueens().getYoung_down().size(); i++) {
+							if (floor[lift.getFloor()].getQueens().getYoung_down().get(i).getDF() == lift.getFloor()) {
+								Runtime++;
+								floor[lift.getFloor()].getQueens()
+										.young_down_in(floor[lift.getFloor()].getQueens().getOld_down().get(i));
+								lift.getCustomers().add(floor[lift.getFloor()].getQueens().getYoung_down().get(i));
+							}
+						}
+					}
+				}
+			}
+		}
+		Roundtime++;
+		if (Roundtime == 10) {
+			if (lift.isUp_down()) {
+				lift.Lift_up();
+			} else {
+				lift.Lift_down();
+			}
+			Roundtime = 0;
+		}
+		Runtime++;
+	}
+
+	public ArrayList<Customer> sortForTime(ArrayList<Customer> customer) {
+		ArrayList<Customer> newlist = new ArrayList<Customer>();
+		int sum = customer.size();
+		for (int i = 0; i < sum; i++) {
+			Customer min = customer.get(0);
+			int minindex = 0;
+			for (int j = 0; j < customer.size(); j++) {
+				if (customer.get(j).getComingTime() < min.getComingTime()) {
+					min = customer.get(j);
+					minindex = j;
+				}
+			}
+			newlist.add(min);
+			customer.remove(minindex);
+		}
+		return newlist;
+	}
+}

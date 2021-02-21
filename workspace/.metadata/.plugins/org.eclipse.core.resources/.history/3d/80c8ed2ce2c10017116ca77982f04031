@@ -1,0 +1,36 @@
+package 十二次作业;
+
+
+public class Dial extends AbstractDial implements Up_down{
+	
+	
+	public Dial()
+	{
+		super();
+	}
+	
+	public Dial(int lever)
+	{
+		super(lever);
+	}
+	
+	public int getDial()
+	{
+		return dial;
+	}
+	
+	public void Up()
+	{
+		if(dial < maxDial)
+			dial++;
+		return dial;
+	}
+	
+	public int dialDown()
+	{
+		if(dial > 1)
+			dial --;
+		return dial;
+	}
+}
+

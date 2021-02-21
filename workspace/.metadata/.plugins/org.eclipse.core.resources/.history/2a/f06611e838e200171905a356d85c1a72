@@ -1,0 +1,62 @@
+package ´ó×÷Òµ;
+
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
+public class UI extends Application{
+		@Override
+		public void start(Stage primaryStage){
+			Pane pane = new Pane();
+			BorderPane pane1 = new BorderPane();
+			GridPane pane2 = new GridPane();
+			Line line1 = new Line(100,0,100,700);
+			Line line2 = new Line(40,0,40,700);
+			for(int i= 1;i <= 10;i++){
+				Line line = new Line(40,70 * i,100,70 * i);
+				pane.getChildren().add(line);
+			}
+			Rectangle r1 = new Rectangle(70,630,30,70);
+			Rectangle r2 = new Rectangle(40,630,30,70);
+			r1.setFill(Color.BLUE);
+			r2.setFill(Color.BLUE);
+			int u;
+			for(int i = 0;i <= 9 ;i++){
+				for(int j = 1;j <= 10;j++){
+					u = 10 * i + j;
+					String t = "";
+					t = t +u; 
+					Button b2 = new Button(t);
+					b2.setPrefWidth(40);
+					b2.setOnAction(e -> Move(r1,r2));
+					pane2.add(b2,j - 1 ,i);
+				}
+			}		
+			pane.getChildren().addAll(line1,line2,r1,r2);
+			pane1.setCenter(pane2);
+			pane1.setLeft(pane);
+			Scene scene = new Scene(pane1,700,700);
+			primaryStage.setTitle("ShowRectangle");
+			primaryStage.setScene(scene);
+			primaryStage.show();
+		}
+		private void Move(Rectangle r1, Rectangle r2) {
+			UpDown r = new UpDown(r1,r2);
+			r.start();
+			Kai k = new Kai(r1,r2);
+			k.start();
+			Guan g = new Guan(r1,r2);
+			g.start();
+		}
+		public static void main(String[] args){
+			Application.launch(args);
+	 }		
+	}
+
+}

@@ -1,0 +1,22 @@
+package ´ó×÷Òµ;
+
+import java.util.ArrayList;
+
+public class CommonQueen {
+private ArrayList<Customer> comList;
+public CommonQueen(){
+	
+}
+public ArrayList<Customer> getComList() {
+	return comList;
+}
+public void setComList(ArrayList<Customer> comList) {
+	this.comList = comList;
+}
+public void out(Customer customer){
+	this.comList.remove(customer);
+}
+public void in(Customer customer){
+	this.comList.add(customer);
+}
+}

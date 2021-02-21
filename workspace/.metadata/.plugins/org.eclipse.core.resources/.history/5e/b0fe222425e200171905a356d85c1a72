@@ -1,0 +1,27 @@
+package ´ó×÷Òµ;
+
+import java.util.ArrayList;
+
+public class Floor {
+private ArrayList<Customer> AllList;
+private SpecialQueen queens;
+public Floor(){
+	
+}
+public SpecialQueen getQueens() {
+	return queens;
+}
+public void setQueens(SpecialQueen queens) {
+	this.queens = queens;
+}
+public ArrayList<Customer> getAllList() {
+	return AllList;
+}
+public void setAlllist(ArrayList<Customer> alllist) {
+	AllList = alllist;
+}
+public void setAllList(ArrayList<Customer> allList) {
+	AllList = allList;
+}
+
+}

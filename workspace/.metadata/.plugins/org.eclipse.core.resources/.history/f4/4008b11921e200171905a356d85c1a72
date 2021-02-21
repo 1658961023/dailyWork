@@ -1,0 +1,48 @@
+package ´ó×÷Òµ;
+
+import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class CustomerInfo {
+public CustomerInfo(){
+	
+}
+public void writeInfo() throws FileNotFoundException{
+	File info=new File("d:/workspace/Customers.txt");
+	java.io.PrintWriter output=new PrintWriter(info);
+	for(int i=0;i<30;i++){
+		int ID=i+1;
+		int age=(int)(Math.random()*70+10);
+		int ComingTime=(int)(Math.random()*200+1);
+		int DF=(int)(Math.random()*100+1);
+		int SF=(int)(Math.random()*100+1);
+		Customer passages=new Customer(ID,age,ComingTime,DF,SF,0);
+		output.print(passages.getID()+"\t");
+		output.print(passages.getAge()+"\t");
+		output.print(passages.getComingTime()+"\t");
+		output.print(passages.getDF()+"\t");
+		output.print(passages.getSF()+"\t");
+		output.println(passages.getLeaveTime()+"\t");
+	}
+	output.close();
+}
+public ArrayList<Customer> readInfo() throws FileNotFoundException{
+	Scanner input=new Scanner(new File("d:/workspace/Customers.txt"));
+	System.out.println("ID\tage\tComingTime\tDF\tSF\tLeaveTime");
+	ArrayList<Customer> passages=new ArrayList<Customer>();
+	while(input.hasNext()){
+		int ID=input.nextInt();
+		int Age=input.nextInt();
+		int ComingTime=input.nextInt();
+		int DF=input.nextInt();
+		int SF=input.nextInt();
+		int LeaveTime=input.nextInt();
+		passages.add(new Customer(ID,Age,ComingTime,DF,SF,LeaveTime));
+	}
+	input.close();
+	return passages;
+}
+}

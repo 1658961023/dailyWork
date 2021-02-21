@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;Homework2_1&apos; to &apos;Homework2_15&apos;&#x0D;&#x0A;- Original project: &apos;课后作业2.15&apos;&#x0D;&#x0A;- Original element: &apos;Homework2_1&apos;&#x0D;&#x0A;- Renamed element: &apos;Homework2_15&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;Homework2_1&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;{Homework2_1.java[Homework2_1" matchStrategy="1" name="Homework2_15" qualified="false" references="true" similarDeclarations="false" stamp="1504697472418" textual="false" version="1.0"/>
+</session>

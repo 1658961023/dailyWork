@@ -1,0 +1,29 @@
+package µÚ¶şÌâ;
+
+public class PointSorter extends Point implements Distance{
+public PointSorter(int x, int y) {
+		super(x, y);
+		// TODO Auto-generated constructor stub
+	}
+
+
+@Override 
+public double getDistance{
+	if(this.getDistance()<getDistance())
+		return -1;
+	if(this.getDistance()>getDistance())
+		return 1;
+	return 0;
+}
+@Override
+public String toString(){
+	return " Distance: "+getDistance();
+}
+
+
+@Override
+public int getDistance() {
+	// TODO Auto-generated method stub
+	return 0;
+}
+}

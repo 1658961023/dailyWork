@@ -1,0 +1,602 @@
+package com.jetx.tool;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.hundsun.jrescloud.rpc.annotation.CloudFunction;
+import com.hundsun.tbsp.common.common.annotation.TbspService;
+
+public class RunTest {
+
+	private static HashMap<String, List<BodyInfo>> reqt = new HashMap<String, List<BodyInfo>>();
+
+	private static HashMap<String, List<BodyInfo>> resp = new HashMap<String, List<BodyInfo>>();
+
+	private static HashMap<String, InterInfo> inter = new HashMap<String, InterInfo>();
+
+	private static HashMap<String, List<DtoInfo>> dto = new HashMap<String, List<DtoInfo>>();
+
+	public static void main(String[] args) {
+
+		try {
+			printInfile("info=====> run exe start.........");
+			// 读取配置文件，开始扫描 jar 包
+			RunTest.getJar(read(System.getProperty("user.dir") + File.separator + "jetx-config"));
+			printInfile("info=====> run exe end.........");
+		} catch (Exception e1) {
+			printInfile("error=====> " + e1.getMessage());
+			e1.printStackTrace();
+		}
+	}
+
+	public static void getJar(List iniList) throws Exception {
+		String jarpath = (String) iniList.get(0);
+		String[] jarpathArr = jarpath.split("=");
+		if (jarpathArr.length != 2) {
+			printInfile("error=====> jarpath 的配置错误。");
+			return;
+		}
+
+		// 1.读取 jar 包路径
+		String jars = (String) jarpathArr[1];
+		String[] jarArr = jars.split(",");
+
+		if (jarArr.length <= 0) {
+			printInfile("error=====> jars 的配置为空。");
+			return;
+		}
+
+		// 2.读取版本信息
+		String versionIn = (String) iniList.get(1);
+		String[] versionInArr = versionIn.split("=");
+		String version = (String) versionInArr[1];
+
+		URL[] urls = new URL[jarArr.length];
+
+		for (int i = 0; i < jarArr.length; i++) {
+			printInfile("info=====> jarurl: " + jarArr[i]);
+			File file = new File(jarArr[i]);
+			URL url1 = file.toURI().toURL();
+			urls[i] = url1;
+		}
+
+		printInfile("info=====> URLClassLoader start.........");
+		// 3.加载 jar 包
+		URLClassLoader classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+		printInfile("info=====> URLClassLoader end.........");
+
+		// 4.循环解析每个 jar 包
+		for (int i = 0; i < jarArr.length; i++) {
+			JarFile jarFile = new JarFile(jarArr[i]);
+			Enumeration<JarEntry> enumeration = jarFile.entries();
+			JarEntry jarEntry;
+			printInfile("info=====> jarurl: " + jarArr[i] + ", inter start......");
+
+			// 7.读取 inter 包下类 找到 Service 中 req 和 resp 的关系
+			getInter(version, classLoader, jarFile);
+
+			printInfile("info=====> jarurl: " + jarArr[i] + ", inter end......");
+
+			printInfile("info=====> jarurl: " + jarArr[i] + ", reqt start......");
+			// 5.读取 jar 包中 Req , resp 和 dto 包中的 class
+			getJarInfo(classLoader, enumeration);
+
+			printInfile("info=====> jarurl: " + jarArr[i] + ", reqt end......");
+			printInfile(
+					"info=====> jarurl: " + jarArr[i] + ", reqt size: " + reqt.size() + ", dto size: " + dto.size());
+			printInfile("info=====> jarurl: " + jarArr[i] + ", 嵌套 list 和 dto start......");
+
+			// 6.循环找到 list 和 嵌套 dto 的关系
+			getDto();
+
+			printInfile("info=====> jarurl: " + jarArr[i] + ", 嵌套 list 和 dto end......");
+
+			// 8.循环 inter 生成 jxet 文件
+			for (String key : inter.keySet()) {
+				ObjectMapper mapper = new ObjectMapper();
+				InterInfo info = inter.get(key);
+				List<BodyInfo> bodys = info.getBodys();
+
+				// 没有文件主体及 trcode 的不生成文件
+				if (bodys == null || "".equals(info.getTrcode())) {
+					continue;
+				}
+
+				// TODO 9.输出文件这里少了 if for 的标签，待补充
+				outPutReqt(info, bodys, version);
+				outPutResp(version, info);
+			}
+		}
+	}
+
+	private static void getInter(String version, URLClassLoader classLoader, JarFile jarFile) {
+		Enumeration<JarEntry> enumeration;
+		JarEntry jarEntry;
+		enumeration = jarFile.entries();
+		while (enumeration.hasMoreElements()) {
+			jarEntry = enumeration.nextElement();
+
+			try {
+				if (jarEntry.getName().indexOf("META-INF") < 0) {
+					String classFullName = jarEntry.getName();
+					if (classFullName.indexOf(".class") < 0) {
+						classFullName = classFullName.substring(0, classFullName.length() - 1);
+					} else {
+						if (classFullName.indexOf("PermMenu") < 0
+								&& classFullName.indexOf("IndividualizationConfig") < 0
+								&& classFullName.indexOf("WorkFlow") < 0) {
+							String className = classFullName.substring(0, classFullName.length() - 6).replace("/", ".");
+
+							Class<?> clazz = classLoader.loadClass(className);
+
+							if (className.indexOf("inter") > -1 && className.endsWith("Service")) {
+								// 获得方法名
+								Method[] methods = clazz.getMethods();
+								for (Method method : methods) {
+									if (method.toString().indexOf(className) > 0) {
+										InterInfo reqtInfo = new InterInfo();
+
+										if ("jres".equals(version)) {
+											CloudFunction myMethodAnnotation = method
+													.getAnnotation(CloudFunction.class);
+											// 取得方法入参
+											reqtInfo.setBodys(reqt.get(method.getParameterTypes()[0].getName()));
+											reqtInfo.setTrcode(myMethodAnnotation.functionId());
+											reqtInfo.setDesc(myMethodAnnotation.desc());
+											reqtInfo.setResp(resp.get(method.getReturnType().getName()));
+										} else {
+											TbspService myMethodAnnotation = method.getAnnotation(TbspService.class);
+											// 取得方法入参
+											reqtInfo.setBodys(reqt.get(method.getParameterTypes()[0].getName()));
+											reqtInfo.setTrcode(myMethodAnnotation.trCode());
+											reqtInfo.setDesc(myMethodAnnotation.trName());
+											reqtInfo.setResp(resp.get(method.getReturnType().getName()));
+										}
+
+										inter.put(
+												className + "."
+														+ method.toString()
+																.substring(method.toString().indexOf(className)),
+												reqtInfo);
+									}
+								}
+							}
+						}
+					}
+				}
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private static void getDto() {
+		for (String key : reqt.keySet()) {
+			List<BodyInfo> bodys = reqt.get(key);
+			for (BodyInfo info : bodys) {
+				if (info.getGenerictype().toUpperCase().indexOf("DTO") > -1) {
+					for (String dtoKey : dto.keySet()) {
+						if (info.getGenerictype().indexOf(dtoKey) > -1) {
+							List<DtoInfo> item = dto.get(dtoKey);
+							info.setDtolist(item);
+						}
+					}
+				}
+			}
+		}
+
+		for (String key : resp.keySet()) {
+			List<BodyInfo> bodys = resp.get(key);
+			for (BodyInfo info : bodys) {
+				if (info.getGenerictype().toUpperCase().indexOf("DTO") > -1) {
+					for (String dtoKey : dto.keySet()) {
+						if (info.getGenerictype().indexOf(dtoKey) > -1) {
+							List<DtoInfo> item = dto.get(dtoKey);
+							info.setDtolist(item);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private static void getJarInfo(URLClassLoader classLoader, Enumeration<JarEntry> enumeration) {
+		JarEntry jarEntry;
+		while (enumeration.hasMoreElements()) {
+			jarEntry = enumeration.nextElement();
+			String className = null;
+			if (jarEntry.getName().indexOf("META-INF") < 0) {
+				String classFullName = jarEntry.getName();
+				if (classFullName.indexOf(".class") < 0) {
+					classFullName = classFullName.substring(0, classFullName.length() - 1);
+				} else {
+					try {
+						if (classFullName.indexOf("PermMenu") < 0
+								&& classFullName.indexOf("IndividualizationConfig") < 0
+								&& classFullName.indexOf("WorkFlow") < 0) {
+							className = classFullName.substring(0, classFullName.length() - 6).replace("/", ".");
+
+							Class<?> clazz = null;
+							try {
+								clazz = classLoader.loadClass(className);
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							Field[] fields = clazz.getDeclaredFields();
+
+							if (className.endsWith("Req")) {
+								List<BodyInfo> bodys = new ArrayList<BodyInfo>();
+
+								for (Field field : fields) {
+									BodyInfo b = new BodyInfo();
+									b.setName(field.getName());
+									b.setAttr("");
+									b.setType(field.getType().getName());
+									b.setGenerictype(field.getGenericType().getTypeName());
+									bodys.add(b);
+								}
+
+								reqt.put(className, bodys);
+							} else if (className.endsWith("Resp")) {
+								List<BodyInfo> bodys = new ArrayList<BodyInfo>();
+
+								for (Field field : fields) {
+									BodyInfo b = new BodyInfo();
+									b.setName(field.getName());
+									b.setAttr("");
+									b.setType(field.getType().getName());
+									b.setGenerictype(field.getGenericType().getTypeName());
+									bodys.add(b);
+								}
+
+								resp.put(className, bodys);
+							} else if (className.endsWith("DTO") || className.endsWith("Dto")) {
+								List<DtoInfo> bodys = new ArrayList<DtoInfo>();
+
+								for (Field field : fields) {
+									DtoInfo b = new DtoInfo();
+									b.setName(field.getName());
+									b.setAttr("");
+									b.setType(field.getType().getName());
+									bodys.add(b);
+								}
+
+								dto.put(className, bodys);
+							}
+						}
+					} catch (Exception e) {
+						printInfile("解析" + className + "出错");
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	public static void outPutReqt(InterInfo info, List<BodyInfo> bodys, String version) throws Exception {
+		HashMap<String, Object> hm = new HashMap<String, Object>();
+		if (! "jres".equals(version)) {
+			/*
+			 * hm.put("headTrCode", info.getTrcode()); hm.put("headUserId",
+			 * "${var?.get('head').get('hradUserId')}"); hm.put("headCustNo",
+			 * "${var?.get('head').get('headCustNo')}"); hm.put("headOrgNo",
+			 * "${var?.get('head').get('headOrgNo')}"); hm.put("headSerialNo",
+			 * "${var?.get('head').get('headSerialNo')}"); hm.put("headReqNo",
+			 * "${var?.get('head').get('headReqNo')}"); hm.put("headTenantId",
+			 * "000"); hm.put("headTrDate",
+			 * "${var?.get('head').get('headTrDate')}"); hm.put("headReqTrDate",
+			 * "${var?.get('head').get('headReqTrDate')}"); hm.put("headTrTime",
+			 * "${var?.get('head').get('headTrTime')}"); hm.put("headChannel",
+			 * "${var?.get('head').get('headChannel')}"); hm.put("language",
+			 * "ZH");
+			 */
+		} else {
+			hm.put("headTrCode", "${var?.get('Header').get('ServiceCode').substring(5,15)}");
+			hm.put("headUserId", "${var?.get('Header').get('RequestOperatorId')}");
+			hm.put("headCustNo", "${var?.get('Header').get('RequestBranchCode')}");
+			hm.put("headOrgNo", "${var?.get('Header').get('RequestBranchCode')}");
+			hm.put("headSerialNo", "${var?.get('Header').get('ExternalReference')}");
+			hm.put("headReqNo", "${var?.get('Header').get('ExternalReference')}");
+			hm.put("headTenantId", "012");
+			hm.put("headTrDate", "${var?.get('Header').get('TradeDate')}");
+			hm.put("headReqTrDate", "${var?.get('Header').get('TradeDate')}");
+			hm.put("headTrTime", "${var?.get('Header').get('RequestTime').substring(8,14)}");
+			hm.put("language", "ZH");
+
+			HashMap<String, Object> ob = new HashMap<String, Object>();
+			ob.put("pageSize", "${var?.get('Body').get('Request').get('PageSize')}");
+			ob.put("pageNo", "${var?.get('Body').get('Request').get('PageNo')}");
+			hm.put("pageRequest", ob);
+		}
+
+		for (BodyInfo ite : bodys) {
+			if (ite.getGenerictype().indexOf("DTO") > -1) {
+				HashMap<String, Object> dto = new HashMap<String, Object>();
+				if (ite.getDtolist() != null) {
+					for (DtoInfo dtoItem : ite.getDtolist()) {
+						if (!"serialVersionUID".equals(dtoItem.getName())) {
+							dto.put(dtoItem.getName(), "${var?.BODY?." + dtoItem.getName() + ")}");
+						}
+					}
+					hm.put("dto", dto);
+				}
+			} else {
+				if (!"serialVersionUID".equals(ite.getName())) {
+					hm.put(ite.getName(), "${var?.BODY?." + ite.getName() + ")}");
+				}
+			}
+		}
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+		FileOutputStream fos = new FileOutputStream(System.getProperty("user.dir") + File.separator + "reqt"
+				+ File.separator + "reqt." + info.getTrcode() + ".jetx");
+		String json = gson.toJson(hm);
+
+		fos.write(json.getBytes());
+		fos.close();
+	}
+
+	private static void outPutResp(String version, InterInfo info) throws Exception {
+		// resp
+		if ("jres".equals(version)) {
+			mapToXml(info, info.getTrcode());
+		} else {
+			mapToXmlTiny(info, info.getTrcode());
+		}
+	}
+
+	public static void mapToXml(InterInfo info, String trcode) throws Exception {
+		// 1、创建document对象
+		Document document = DocumentHelper.createDocument();
+		// 2、创建根节点rss
+		Element rss = document.addElement("service");
+		// 3、向rss节点添加version属性
+		rss.addAttribute("version", "2.0");
+
+		Element SYS_HEAD = rss.addElement("SYS_HEAD");
+		Element APP_HEAD = rss.addElement("APP_HEAD");
+		Element LOCAL_HEAD = rss.addElement("LOCAL_HEAD");
+		Element BODY = rss.addElement("BODY");
+
+		// 4、生成子节点及子节点内容
+		Element SERVICE_CODE = SYS_HEAD.addElement("SERVICE_CODE");
+		SERVICE_CODE.setText("${aux?.SYS_HEAD?.SERVICE_CODE}");
+		SERVICE_CODE.addAttribute("attr", "s,30");
+		Element SERVICE_SCENE = SYS_HEAD.addElement("SERVICE_SCENE");
+		SERVICE_SCENE.setText("${aux?.SYS_HEAD?.SERVICE_SCENE}");
+		SERVICE_SCENE.addAttribute("attr", "s,2");
+		Element OrgCnlTp = SYS_HEAD.addElement("OrgCnlTp");
+		OrgCnlTp.setText("${aux?.SYS_HEAD?.OrgCnlTp}");
+		OrgCnlTp.addAttribute("attr", "s,6");
+		Element CONSUMER_ID = SYS_HEAD.addElement("CONSUMER_ID");
+		CONSUMER_ID.setText("${aux?.SYS_HEAD?.CONSUMER_ID}");
+		CONSUMER_ID.addAttribute("attr", "s,6");
+		Element CONSUMER_SEQ_NO = SYS_HEAD.addElement("CONSUMER_SEQ_NO");
+		CONSUMER_SEQ_NO.setText("${aux?.SYS_HEAD?.CONSUMER_SEQ_NO}");
+		CONSUMER_SEQ_NO.addAttribute("attr", "s,52");
+		Element TRAN_DATE = SYS_HEAD.addElement("TRAN_DATE");
+		TRAN_DATE.setText("${aux?.SYS_HEAD?.TRAN_DATE}");
+		TRAN_DATE.addAttribute("attr", "s,8");
+		Element TRAN_TIMESTAMP = SYS_HEAD.addElement("TRAN_TIMESTAMP");
+		TRAN_TIMESTAMP.setText("${aux?.SYS_HEAD?.TRAN_TIMESTAMP}");
+		TRAN_TIMESTAMP.addAttribute("attr", "s,9");
+
+		Element RET = SYS_HEAD.addElement("RET");
+		RET.addAttribute("attr", "array");
+		Element stuct = RET.addElement("stuct");
+		Element RET_CODE = stuct.addElement("RET_CODE");
+		RET_CODE.addAttribute("attr", "s,20");
+		RET_CODE.setText("${var?.respCode}");
+		Element RET_MSG = stuct.addElement("RET_MSG");
+		RET_MSG.addAttribute("attr", "s,512");
+		RET_MSG.setText("${var?.respMsg}");
+		Element PrdrId = SYS_HEAD.addElement("PrdrId");
+		PrdrId.setText("${cls?.getConsumerId()}");
+		PrdrId.addAttribute("attr", "s,52");
+
+		Element LegOrgId = APP_HEAD.addElement("LegOrgId");
+		LegOrgId.setText("${aux?.APP_HEAD?.LegOrgId}");
+		LegOrgId.addAttribute("attr", "s,12");
+		Element GlblSeqNo = APP_HEAD.addElement("GlblSeqNo");
+		GlblSeqNo.setText("${aux?.APP_HEAD?.GlblSeqNo}");
+		GlblSeqNo.addAttribute("attr", "s,52");
+		Element BRANCH_ID = APP_HEAD.addElement("BRANCH_ID");
+		BRANCH_ID.setText("${aux?.APP_HEAD?.BRANCH_ID}");
+		BRANCH_ID.addAttribute("attr", "s,9");
+		Element USER_ID = APP_HEAD.addElement("USER_ID");
+		USER_ID.setText("${aux?.APP_HEAD?.USER_ID}");
+		USER_ID.addAttribute("attr", "s,30");
+
+		for (BodyInfo ite : info.getResp()) {
+
+			if (ite.getGenerictype().indexOf("DTO") > -1) {
+				HashMap<String, Object> dto = new HashMap<String, Object>();
+				if (ite.getDtolist() != null) {
+					Element DTO = BODY.addElement("DTO");
+					for (DtoInfo dtoItem : ite.getDtolist()) {
+						if (!"serialVersionUID".equals(dtoItem.getName())) {
+							Element BODY_E = DTO.addElement(dtoItem.getName());
+							BODY_E.setText("${var?." + dtoItem.getName() + "}");
+							BODY_E.addAttribute("attr", "");
+						}
+					}
+				}
+			} else {
+				if (!"serialVersionUID".equals(ite.getName())) {
+					Element BODY_E = BODY.addElement(ite.getName());
+					BODY_E.setText("${var?." + ite.getName() + "}");
+					BODY_E.addAttribute("attr", "");
+				}
+			}
+		}
+
+		// 5、设置生成xml的格式
+		OutputFormat format = OutputFormat.createPrettyPrint();
+		// 设置编码格式
+		format.setEncoding("UTF-8");
+
+		// 6、生成xml文件
+		File file = new File(
+				System.getProperty("user.dir") + File.separator + "resp" + File.separator + "resp." + trcode + ".jetx");
+		XMLWriter writer = new XMLWriter(new FileOutputStream(file), format);
+		// 设置是否转义，默认使用转义字符
+		writer.setEscapeText(false);
+		writer.write(document);
+		writer.close();
+	}
+
+	public static void mapToXmlTiny(InterInfo info, String trcode) throws Exception {
+		// 1、创建document对象
+		Document document = DocumentHelper.createDocument();
+		// 2、创建根节点rss
+		Element rss = document.addElement("Service");
+
+		Element SYS_HEAD = rss.addElement("Header");
+		Element BODY = rss.addElement("Body");
+
+		// 4、生成子节点及子节点内容
+		Element SERVICE_CODE = SYS_HEAD.addElement("ServiceCode");
+		SERVICE_CODE.setText(trcode);
+		Element SERVICE_SCENE = SYS_HEAD.addElement("ChannelId");
+		SERVICE_SCENE.setText("E00");
+		Element OrgCnlTp = SYS_HEAD.addElement("ExternalReference");
+		OrgCnlTp.setText("${var?.headReqNo}");
+		Element CONSUMER_ID = SYS_HEAD.addElement("OriginalChannelId");
+		CONSUMER_ID.setText("");
+		Element CONSUMER_SEQ_NO = SYS_HEAD.addElement("OriginalReference");
+		CONSUMER_SEQ_NO.setText("");
+		Element TEAN_DATE = SYS_HEAD.addElement("RequestTime");
+		TEAN_DATE.setText("${var?.headTrTime}");
+		Element TRAN_TIMESTAMP = SYS_HEAD.addElement("TradeDate");
+		TRAN_TIMESTAMP.setText("${var?.headTrDate}");
+		Element Version = SYS_HEAD.addElement("Version");
+		Version.setText("1.0");
+		Element RequestBranchCode = SYS_HEAD.addElement("RequestBranchCode");
+		RequestBranchCode.setText("${cls?.getOrgNo()}");
+		Element RequestOperatorId = SYS_HEAD.addElement("RequestOperatorId");
+		RequestOperatorId.setText("${cls?.getOperatorId()}");
+		Element RequestOperatorType = SYS_HEAD.addElement("RequestOperatorType");
+		RequestOperatorType.setText("1");
+		Element BankNoteBoxID = SYS_HEAD.addElement("BankNoteBoxID");
+		BankNoteBoxID.setText("");
+		Element AuthorizerID = SYS_HEAD.addElement("AuthorizerID");
+		AuthorizerID.setText("");
+		Element TermType = SYS_HEAD.addElement("TermType");
+		TermType.setText("00000");
+		Element TermNo = SYS_HEAD.addElement("TermNo");
+		TermNo.setText("0000000000");
+		Element RequestType = SYS_HEAD.addElement("RequestType");
+		RequestType.setText("");
+		Element Encrypt = SYS_HEAD.addElement("Encrypt");
+		Encrypt.setText("");
+
+		Element Response = SYS_HEAD.addElement("Response");
+		Element ReturnCode = Response.addElement("ReturnCode");
+		ReturnCode.setText("00000000");
+		Element ReturnMessage = Response.addElement("ReturnMessage");
+		ReturnMessage.setText("交易成功");
+
+		Element Response1 = BODY.addElement("Response");
+		for (BodyInfo ite : info.getResp()) {
+
+			if (ite.getGenerictype().toUpperCase().indexOf("DTO") > -1) {
+				HashMap<String, Object> dto = new HashMap<String, Object>();
+				if (ite.getDtolist() != null) {
+					Element DTO = Response1.addElement(ite.getName());
+					for (DtoInfo dtoItem : ite.getDtolist()) {
+						if (!"serialVersionUID".equals(dtoItem.getName())) {
+							Element BODY_E = DTO.addElement(dtoItem.getName());
+							BODY_E.setText("");
+						}
+					}
+				}
+			} else {
+				if (!"serialVersionUID".equals(ite.getName())) {
+					Element BODY_E = Response1.addElement(ite.getName());
+					BODY_E.setText("");
+				}
+			}
+		}
+
+		// 5、设置生成xml的格式
+		OutputFormat format = OutputFormat.createPrettyPrint();
+		// 设置编码格式
+		format.setEncoding("UTF-8");
+
+		// 6、生成xml文件
+		File file = new File(
+				System.getProperty("user.dir") + File.separator + "resp" + File.separator + "resp." + trcode + ".jetx");
+		XMLWriter writer = new XMLWriter(new FileOutputStream(file), format);
+		// 设置是否转义，默认使用转义字符
+		writer.setEscapeText(false);
+		writer.write(document);
+		writer.close();
+	}
+
+	public static void printInfile(String str) {
+		String path = System.getProperty("user.dir") + File.separator + "log.txt";
+		File toFile = new File(path);
+		PrintStream ps = null;
+		OutputStream os = null;
+		try {
+			os = new FileOutputStream(toFile, true);
+			ps = new PrintStream(os, true);
+
+			String temp_str = "";
+			Date dt = new Date();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss aa");
+			temp_str = sdf.format(dt);
+
+			ps.println(temp_str + ": " + str);
+			System.out.println(temp_str + ": " + str);
+
+		} catch (FileNotFoundException e) {
+
+		} finally {
+			ps.close();
+		}
+	}
+
+	public static List read(String path) throws Exception {
+		List list = new ArrayList();
+		File file = new File(path);
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+		String line = null;
+		while ((line = br.readLine()) != null) {
+			list.add(line);
+		}
+		return list;
+	}
+}

@@ -1,0 +1,61 @@
+package ´ó×÷Òµ;
+
+import java.util.ArrayList;
+
+public class SpecialQueen {
+private ArrayList<Customer> old_up;
+private ArrayList<Customer> young_up;
+private ArrayList<Customer> old_down;
+private ArrayList<Customer> young_down;
+public SpecialQueen(){
+	
+}
+public ArrayList<Customer> getOld_up() {
+	return old_up;
+}
+public void setOld_up(ArrayList<Customer> old_up) {
+	this.old_up = old_up;
+}
+public ArrayList<Customer> getYoung_up() {
+	return young_up;
+}
+public void setYoung_up(ArrayList<Customer> young_up) {
+	this.young_up = young_up;
+}
+public ArrayList<Customer> getOld_down() {
+	return old_down;
+}
+public void setOld_down(ArrayList<Customer> old_down) {
+	this.old_down = old_down;
+}
+public ArrayList<Customer> getYoung_down() {
+	return young_down;
+}
+public void setYoung_down(ArrayList<Customer> young_down) {
+	this.young_down = young_down;
+}
+public void old_up_in(Customer customer){
+	this.old_up.remove(customer);
+}
+public void old_down_add(Customer customer){
+	this.old_up.add(customer);
+}
+public void young_up_in(Customer customer){
+	this.old_up.remove(customer);
+}
+public void young_down_add(Customer customer){
+	this.old_up.add(customer);
+}
+public void old_up_add(Customer customer){
+	this.old_up.add(customer);
+}
+public void old_down_in(Customer customer){
+	this.old_up.remove(customer);
+}
+public void young_up_add(Customer customer){
+	this.old_up.add(customer);
+}
+public void young_down_in(Customer customer){
+	this.old_up.remove(customer);
+}
+}

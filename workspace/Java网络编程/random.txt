@@ -1,0 +1,10 @@
+Number 1:12
+Number 2:46
+Number 3:41
+Number 4:45
+Number 5:64
+Number 6:15
+Number 7:91
+Number 8:80
+Number 9:69
+Number 10:20

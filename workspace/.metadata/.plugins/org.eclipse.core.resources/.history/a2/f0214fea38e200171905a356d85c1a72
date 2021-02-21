@@ -1,0 +1,27 @@
+package ´ó×÷Òµ;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
+public class Up_Down extends Thread{
+		Rectangle r1;
+		Rectangle r2;
+		public Up_Down(){
+			
+		}
+		public Up_Down(Rectangle r1, Rectangle r2) {
+			this.r1 = r1;
+			this.r2 = r2;
+		}
+		public void run(){
+			Timeline  t = new Timeline(new KeyFrame(Duration.millis(1000),e ->Move(r1,r2)));
+			t.setCycleCount(10);
+			t.play();
+		}
+		private void Move(Rectangle r1, Rectangle r2) {
+			r1.setY(r1.getY() - 7);
+			r2.setY(r2.getY() - 7);
+		}
+		
+
+	}

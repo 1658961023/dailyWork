@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;now&apos; in &apos;Work.main(...)&apos; to &apos;next&apos;&#x0D;&#x0A;- Original project: &apos;33&apos;&#x0D;&#x0A;- Original element: &apos;Work.main(String[]).now&apos;&#x0D;&#x0A;- Renamed element: &apos;now&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;now&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src&lt;{Work.java[Work~main~\[QString;@now!89!100!93!95!I!0!false" name="next" references="true" stamp="1507291673047" version="1.0"/>
+</session>

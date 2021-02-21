@@ -1,0 +1,22 @@
+import java.math.BigInteger;
+
+public class Mersenne {
+public static void main(String[] args){
+	for(int p=2;p<100;p++){
+		if(isPrime(p)){
+			BigInteger i;
+			i=new BigInteger(Math.pow(2, p)-1);
+			System.out.println(i+" ");
+		}
+	}
+	
+}
+public static boolean isPrime(int num){
+	boolean prime = true;
+	for (int i = 2; i <= Math.sqrt(num); i++) {
+		if (num % i == 0)
+			prime = false;
+	}
+	return prime;
+}
+}

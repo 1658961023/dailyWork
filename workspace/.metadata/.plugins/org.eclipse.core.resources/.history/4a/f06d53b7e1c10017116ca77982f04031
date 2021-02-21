@@ -1,0 +1,35 @@
+package 十二次作业;
+
+
+public class LeverNew extends AbstractLever{
+	
+	public LeverNew()
+	{
+		super();
+	}
+	
+	public LeverNew(int maxlever)
+	{
+		super(maxlever);
+	}
+	
+	public int getLever()
+	{
+		return lever;
+	}
+	
+	public int leverUp()
+	{
+		if(lever < maxlever)
+			lever++;
+		return lever;
+	}
+	
+	public int leverDown()
+	{
+		if(lever > 1)
+			lever --;
+		return lever;
+	}
+}
+

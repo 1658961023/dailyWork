@@ -1,0 +1,23 @@
+package ´ó×÷Òµ;
+
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+
+public class Test {
+	public static void main(String[] args) throws FileNotFoundException {
+		CustomerInfo info = new CustomerInfo();
+		info.writeInfo();
+		ArrayList<Customer> passages = new ArrayList<Customer>();
+		passages = info.readInfo();
+		Lift lift=new Lift();
+		Floor [] floor=new Floor[101];
+		Control control=new Control(lift,floor,passages);
+		control.run();
+		for (int i = 0; i < passages.size(); i++) {
+			System.out.println(
+					passages.get(i).getID() + "\t" + passages.get(i).getAge() + "\t" + passages.get(i).getComingTime()
+							+ "\t\t" + passages.get(i).getDF() + "\t" + passages.get(i).getSF() + "\t"+passages.get(i).getLeaveTime());
+		}
+	}
+}
+

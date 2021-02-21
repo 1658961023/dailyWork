@@ -1,0 +1,60 @@
+package ´ó×÷Òµ;
+
+import java.util.ArrayList;
+
+public class Lift {
+	private int floor;
+	private ArrayList<Customer> customers;
+	final int max = 13;
+	private boolean up_down;
+	private boolean isArriveFloor;
+
+	public Lift() {
+
+	}
+
+	public int getFloor() {
+		return floor;
+	}
+
+	public void setFloor(int floor) {
+		this.floor = floor;
+	}
+
+	public CommonQueen getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(CommonQueen customer) {
+		this.customer = customer;
+	}
+
+	public int getMax() {
+		return max;
+	}
+
+	public void Lift_up(){
+		this.floor++;
+	}
+	public void Lift_down(){
+		this.floor--;
+	}
+
+	public boolean isUp_down() {
+		return up_down;
+	}
+
+	public void setUp_down(boolean up_down) {
+		this.up_down = up_down;
+	}
+
+	public boolean isArriveFloor() {
+		return isArriveFloor;
+	}
+
+	public void setArriveFloor(boolean isArriveFloor) {
+		this.isArriveFloor = isArriveFloor;
+	}
+
+	
+	}
